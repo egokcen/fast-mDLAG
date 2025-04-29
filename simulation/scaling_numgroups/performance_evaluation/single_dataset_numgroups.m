@@ -1,0 +1,128 @@
+% single_dataset_numgroups.m
+%
+% Description: Inspect a single dataset in detail.
+%
+% Author: 
+%     Evren Gokcen    egokcen@cmu.edu
+
+%% Set up script parameters
+
+set_consts_mdlag_scaling_numgroups;
+
+%% Load fitted model and ground truth data
+
+runIdx = 1;
+numGroups = numGroupsList(3);
+
+% Time domain fit
+results_time = load( ...
+    sprintf('%s/run%03d/numgroups_%02d_time.mat', resultDir, runIdx, numGroups) ...
+);
+% Inducing point fit
+results_sparse = load( ...
+    sprintf('%s/run%03d/numgroups_%02d_sparse.mat', resultDir, runIdx, numGroups) ...
+);
+% Restructure the smDLAG structures to be compatible with the others
+results_sparse.trackedParams.gp_params.Ds = results_sparse.trackedParams.Ds;
+results_sparse.trackedParams.gp_params.gams = results_sparse.trackedParams.gams;
+results_sparse.trackedParams = rmfield(results_sparse.trackedParams, {'Ds', 'gams'});
+% Frequency domain fit
+results_freq = load( ...
+    sprintf('%s/run%03d/numgroups_%02d_freq.mat', resultDir, runIdx, numGroups) ...
+);          
+
+%% Compare fitting progress of GP parameters
+
+figure;
+% GP timescales
+subplot(1,2,1);
+hold on;
+% Time domain
+h1 = plot(1:length(results_time.trackedParams.iterTime)+1, ...
+          binWidth./sqrt([results_time.trackedParams.gp_params.gams{:}]), ...
+          'color', 'k', ...
+          'linestyle', '-', ...
+          'linewidth', 1.5);
+% Frequency domain
+h2 = plot(1:length(results_freq.trackedParams.iterTime)+1, ...
+          binWidth./sqrt([results_freq.trackedParams.gp_params.gams{:}]), ...
+          'color', FREQCOLOR, ...
+          'linestyle', '-', ...
+          'linewidth', 1.5);
+xscale('log');
+xlabel('Iteration');
+ylabel('Estimated GP timescale');
+axis square;
+legend([h1 h2], 'Time domain', 'Freq. domain', ...
+    'location', 'southoutside');
+
+% GP time delays
+subplot(1,2,2);
+hold on;
+% Time domain
+delays_time = binWidth.*([results_time.trackedParams.gp_params.Ds{:}]);
+delays_time = delays_time(end,:);
+h1 = plot(1:length(delays_time), ...
+          delays_time, ...
+          'color', 'k', ...
+          'linestyle', '-', ...
+          'linewidth', 1.5);
+% Frequency domain
+delays_freq = binWidth.*([results_freq.trackedParams.gp_params.Ds{:}]);
+delays_freq = delays_freq(end,:);
+h1 = plot(1:length(delays_freq), ...
+          delays_freq, ...
+          'color', FREQCOLOR, ...
+          'linestyle', '-', ...
+          'linewidth', 1.5);
+xscale('log');
+xlabel('Iteration');
+ylabel('Estimated GP time delay');
+axis square;
+legend([h1 h2], 'Time domain', 'Freq. domain', ...
+    'location', 'southoutside');
+
+%% Compare lower bound progress over clock time
+
+figure;
+hold on;
+% Time domain
+h1 = plot(cumsum(results_time.trackedParams.iterTime), ...
+          results_time.trackedParams.lb, ...
+          'color', 'k', ...
+          'linestyle', '-', ...
+          'linewidth', 1.5);
+% Inducing points
+h2 = plot(cumsum(results_sparse.trackedParams.iterTime), ...
+          results_sparse.trackedParams.lb, ...
+          'color', SPARSECOLOR, ...
+          'linestyle', '-', ...
+          'linewidth', 1.5);
+% Frequency domain
+h3 = plot(cumsum(results_freq.trackedParams.iterTime), ...
+          results_freq.trackedParams.lb, ...
+          'color', FREQCOLOR, ...
+          'linestyle', '-', ...
+          'linewidth', 1.5);
+xscale('log');
+xlabel('Elapsed clock time (s)');
+ylabel('Lower bound value');
+axis square;
+legend([h1 h2 h3], 'Time domain', 'Inducing points', 'Freq. domain', ...
+    'location', 'southeast');
+
+% Runtime summaries
+fprintf('Avg. runtime per iteration (s):\n')
+fprintf('    time domain:    %f\n', mean(results_time.trackedParams.iterTime))
+fprintf('    inducing:       %f\n', mean(results_sparse.trackedParams.iterTime))
+fprintf('    freq domain:    %f\n', mean(results_freq.trackedParams.iterTime))
+
+fprintf('Total iterations:\n')
+fprintf('    time domain:    %d\n', length(results_time.trackedParams.iterTime))
+fprintf('    inducing:       %d\n', length(results_sparse.trackedParams.iterTime))
+fprintf('    freq domain:    %d\n', length(results_freq.trackedParams.iterTime))
+
+fprintf('Total runtime (s):\n')
+fprintf('    time domain:    %f\n', sum(results_time.trackedParams.iterTime))
+fprintf('    inducing:       %f\n', sum(results_sparse.trackedParams.iterTime))
+fprintf('    freq domain:    %f\n', sum(results_freq.trackedParams.iterTime))

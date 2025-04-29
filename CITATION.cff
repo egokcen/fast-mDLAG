@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Gokcen"
+  given-names: "Evren"
+  orcid: "https://orcid.org/0000-0002-2301-1429"
+title: "Fast mDLAG"
+version: 1.0.0
+doi: 10.5281/zenodo.10048163
+date-released: 2025-04-29
+url: "https://github.com/egokcen/fast-mdlag"
+license: MIT
