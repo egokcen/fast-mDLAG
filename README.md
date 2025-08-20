@@ -13,6 +13,13 @@ neuronal populations). As preliminaries to this work, see
 [this paper](https://nips.cc/virtual/2023/poster/70171) and its
 accompanying [repository](https://github.com/egokcen/mDLAG).
 
+> [!NOTE]
+> In the single-group case, mDLAG is equivalent to a Bayesian formulation of Gaussian
+> Process Factor Analysis (GPFA). This codepack thus incidentally provides the fastest 
+> implementations of GPFA to date. To effectively apply GPFA with mDLAG, simply specify
+> a single group in the appropriate configuration settings (see [Overview](#overview)
+> for pointers to relevant demo scripts).
+
 ### Table of Contents
 
 - [Citing this work](#citing-this-work)
@@ -25,9 +32,9 @@ accompanying [repository](https://github.com/egokcen/mDLAG).
 
 ## Citing this work
 
-This repository accompanies the following paper:
+This repository accompanies the following [paper](https://doi.org/10.1162/neco.a.22):
 - Gokcen, E., Jasper, A. I., Kohn, A., Machens, C. K., & Yu, B. M.
-  Fast multi-group Gaussian process factor models. _Neural Computation_ (2025).
+  Fast multigroup Gaussian process factor models. _Neural Computation_, 37, 1709-1782 (2025).
 
 Please read it carefully before using the code, as it describes all of the
 terminology and usage modes. For proper attribution, please cite the above reference
